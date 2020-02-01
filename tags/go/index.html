@@ -21,13 +21,13 @@
   var CONFIG = {
     hostname: new URL('https://njphper.com').hostname,
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '7.7.0',
     exturl: false,
     sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
     copycode: {"enable":true,"show_result":false,"style":"mac"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
     fancybox: false,
     mediumzoom: false,
     lazyload: true,
@@ -46,10 +46,12 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
+  <meta name="description" content="blog记录">
+<meta property="og:type" content="website">
 <meta property="og:title" content="JaguarJack&#39;s Blog">
 <meta property="og:url" content="https://njphper.com/tags/go/index.html">
 <meta property="og:site_name" content="JaguarJack&#39;s Blog">
+<meta property="og:description" content="blog记录">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="JaguarJack">
 <meta name="twitter:card" content="summary">
@@ -189,12 +191,7 @@
     </header>
 
     
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
   <div class="reading-progress-bar"></div>
-  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
 
 
     <main class="main">
@@ -233,7 +230,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2019/04/17/go-to-php-passwordhash/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-to-php-passwordhash/" itemprop="url">
             <span itemprop="name">Go 如何实现兼容 PHP 的密码加密解密</span>
           </a>
       </h3>
@@ -253,7 +250,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2019/04/09/go-module/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-module/" itemprop="url">
             <span itemprop="name">Go Modules 详解使用</span>
           </a>
       </h3>
@@ -273,7 +270,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2019/04/09/go-for-trap/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-for-trap/" itemprop="url">
             <span itemprop="name">Go 陷阱之 for 循环迭代变量</span>
           </a>
       </h3>
@@ -293,7 +290,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2019/04/07/go-for-error/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-for-error/" itemprop="url">
             <span itemprop="name">Go 陷阱之 for 循环迭代变量</span>
           </a>
       </h3>
@@ -316,7 +313,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2018/11/14/golang-zhuangshiqi/" itemprop="url">
+          <a class="post-title-link" href="/posts/golang-zhuangshiqi/" itemprop="url">
             <span itemprop="name">Go 实现装饰者模式</span>
           </a>
       </h3>
@@ -336,7 +333,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2018/11/06/go-observer/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-observer/" itemprop="url">
             <span itemprop="name">Go 实现观察者模式</span>
           </a>
       </h3>
@@ -356,7 +353,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2018/10/28/go-redis-client/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-redis-client/" itemprop="url">
             <span itemprop="name">Go 实现简易的 redis 客户端</span>
           </a>
       </h3>
@@ -376,7 +373,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2018/10/26/go-interface-object/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-interface-object/" itemprop="url">
             <span itemprop="name">Golang 中的面向对象继承</span>
           </a>
       </h3>
@@ -396,7 +393,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2018/10/23/go-slice/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-slice/" itemprop="url">
             <span itemprop="name">go 切片探索</span>
           </a>
       </h3>
@@ -416,7 +413,7 @@
       </div>
 
       <h3 class="post-title">
-          <a class="post-title-link" href="/2018/07/15/go-websocket-part2%E2%80%9C/" itemprop="url">
+          <a class="post-title-link" href="/posts/go-websocket-part2%E2%80%9C/" itemprop="url">
             <span itemprop="name">Go 实现简单websocket帧解析， 接发文本消息</span>
           </a>
       </h3>
@@ -490,8 +487,10 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="JaguarJack"
+      src="/images/avatar.jpg">
   <p class="site-author-name" itemprop="name">JaguarJack</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">blog记录</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
@@ -548,6 +547,10 @@
   </div>
 
       </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
 
     </div>
   </aside>
@@ -575,7 +578,7 @@
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
   </div>
   <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
   </div>
 
         
@@ -622,8 +625,6 @@
 
 
 <script src="/js/next-boot.js"></script>
-
-<script src="/js/bookmark.js"></script>
 
 
 

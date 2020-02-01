@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://njphper.com/"/>
-  <updated>2019-05-19T10:19:02.000Z</updated>
+  <updated>2020-02-01T05:05:45.322Z</updated>
   <id>https://njphper.com/</id>
   
   <author>
@@ -18,20 +18,16 @@
   
   <entry>
     <title>Laravel 非常有用却不常用的方法记录</title>
-    <link href="https://njphper.com/2019/05/15/laravel-userfule-method/"/>
-    <id>https://njphper.com/2019/05/15/laravel-userfule-method/</id>
+    <link href="https://njphper.com/posts/laravel-userfule-method/"/>
+    <id>https://njphper.com/posts/laravel-userfule-method/</id>
     <published>2019-05-14T22:11:59.000Z</published>
-    <updated>2019-05-19T10:19:02.000Z</updated>
+    <updated>2020-02-01T05:05:45.322Z</updated>
     
-    <content type="html"><![CDATA[<p>本篇博客记录一些 Laravel 框架一些不常用但非常实用的方法。或者一些非常有用的小技巧，可以显著提高代码的可读性。并且记录一些难以发现的技巧性的使用。</p><h2 id="获取表结构信息"><a href="#获取表结构信息" class="headerlink" title="获取表结构信息"></a>获取表结构信息</h2><p>网上有很多关于 <code>Laravel</code> 获取表信息的文章，很多都是这样的</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取数据库所有表信息</span></span><br><span class="line">DB::select(<span class="string">'show tables'</span>)</span><br><span class="line"><span class="comment">// 获取表 column 信息</span></span><br><span class="line">Db::select(<span class="string">'show full columns from  $table'</span>)</span><br><span class="line"><span class="comment">// 获取表信息</span></span><br><span class="line">DB::select(<span class="string">'show table status'</span>))</span><br></pre></td></tr></table></figure><p>当然这样是可以获取到的，没有任何问题，关键这样让代码看起来有点难受，其实 <code>Laravel</code> 提供了一系列这样的操作。下面来提供该演示:</p><h3 id="获取所有表"><a href="#获取所有表" class="headerlink" title="获取所有表"></a>获取所有表</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineSchemaManager()-&gt;listTableNames())</span><br></pre></td></tr></table></figure><h3 id="获取表所有-Column-字段"><a href="#获取表所有-Column-字段" class="headerlink" title="获取表所有 Column 字段"></a>获取表所有 Column 字段</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\Schema::getColumnListing(<span class="string">'table'</span>))</span><br></pre></td></tr></table></figure><h3 id="获取表单个字段的信息"><a href="#获取表单个字段的信息" class="headerlink" title="获取表单个字段的信息"></a>获取表单个字段的信息</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取单个字段信息</span></span><br><span class="line">$field = \Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineColumn(<span class="string">'table'</span>, <span class="string">'field_name'</span>)</span><br><span class="line">$field-&gt;getComment(); <span class="comment">// 获取注释</span></span><br><span class="line">$field-&gt;getType(); <span class="comment">// 获取类型</span></span><br></pre></td></tr></table></figure><h3 id="获取表信息"><a href="#获取表信息" class="headerlink" title="获取表信息"></a>获取表信息</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineSchemaManager()-&gt;listTableDetails(<span class="string">'table'</span>)-&gt;getOptions());</span><br></pre></td></tr></table></figure><h2 id="数据库操作"><a href="#数据库操作" class="headerlink" title="数据库操作"></a>数据库操作</h2>]]></content>
+    <content type="html"><![CDATA[<p>本篇博客记录一些 Laravel 框架一些不常用但非常实用的方法。或者一些非常有用的小技巧，可以显著提高代码的可读性。并且记录一些难以发现的技巧性的使用。</p><a id="more"></a><h2 id="获取表结构信息"><a href="#获取表结构信息" class="headerlink" title="获取表结构信息"></a>获取表结构信息</h2><p>网上有很多关于 <code>Laravel</code> 获取表信息的文章，很多都是这样的</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取数据库所有表信息</span></span><br><span class="line">DB::select(<span class="string">'show tables'</span>)</span><br><span class="line"><span class="comment">// 获取表 column 信息</span></span><br><span class="line">Db::select(<span class="string">'show full columns from  $table'</span>)</span><br><span class="line"><span class="comment">// 获取表信息</span></span><br><span class="line">DB::select(<span class="string">'show table status'</span>))</span><br></pre></td></tr></table></figure><p>当然这样是可以获取到的，没有任何问题，关键这样让代码看起来有点难受，其实 <code>Laravel</code> 提供了一系列这样的操作。下面来提供该演示:</p><h3 id="获取所有表"><a href="#获取所有表" class="headerlink" title="获取所有表"></a>获取所有表</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineSchemaManager()-&gt;listTableNames())</span><br></pre></td></tr></table></figure><h3 id="获取表所有-Column-字段"><a href="#获取表所有-Column-字段" class="headerlink" title="获取表所有 Column 字段"></a>获取表所有 Column 字段</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\Schema::getColumnListing(<span class="string">'table'</span>))</span><br></pre></td></tr></table></figure><h3 id="获取表单个字段的信息"><a href="#获取表单个字段的信息" class="headerlink" title="获取表单个字段的信息"></a>获取表单个字段的信息</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取单个字段信息</span></span><br><span class="line">$field = \Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineColumn(<span class="string">'table'</span>, <span class="string">'field_name'</span>)</span><br><span class="line">$field-&gt;getComment(); <span class="comment">// 获取注释</span></span><br><span class="line">$field-&gt;getType(); <span class="comment">// 获取类型</span></span><br></pre></td></tr></table></figure><h3 id="获取表信息"><a href="#获取表信息" class="headerlink" title="获取表信息"></a>获取表信息</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineSchemaManager()-&gt;listTableDetails(<span class="string">'table'</span>)-&gt;getOptions());</span><br></pre></td></tr></table></figure><h2 id="数据库操作"><a href="#数据库操作" class="headerlink" title="数据库操作"></a>数据库操作</h2>]]></content>
     
     <summary type="html">
     
-      
-      
-        &lt;p&gt;本篇博客记录一些 Laravel 框架一些不常用但非常实用的方法。或者一些非常有用的小技巧，可以显著提高代码的可读性。并且记录一些难以发现的技巧性的使用。&lt;/p&gt;
-&lt;h2 id=&quot;获取表结构信息&quot;&gt;&lt;a href=&quot;#获取表结构信息&quot; class=&quot;headerlink&quot; 
-      
+      &lt;p&gt;本篇博客记录一些 Laravel 框架一些不常用但非常实用的方法。或者一些非常有用的小技巧，可以显著提高代码的可读性。并且记录一些难以发现的技巧性的使用。&lt;/p&gt;
     
     </summary>
     
@@ -45,8 +41,8 @@
   
   <entry>
     <title>解决 IE/Edge 导出 Excel 中文文件名乱码</title>
-    <link href="https://njphper.com/2019/05/09/ie-urlencode/"/>
-    <id>https://njphper.com/2019/05/09/ie-urlencode/</id>
+    <link href="https://njphper.com/posts/ie-urlencode/"/>
+    <id>https://njphper.com/posts/ie-urlencode/</id>
     <published>2019-05-08T22:29:03.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -71,8 +67,8 @@
   
   <entry>
     <title>Nginx 学习笔记</title>
-    <link href="https://njphper.com/2019/05/08/nginx-conf/"/>
-    <id>https://njphper.com/2019/05/08/nginx-conf/</id>
+    <link href="https://njphper.com/posts/nginx-conf/"/>
+    <id>https://njphper.com/posts/nginx-conf/</id>
     <published>2019-05-08T08:06:54.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -100,8 +96,8 @@
   
   <entry>
     <title>leetcode 简单题（一）</title>
-    <link href="https://njphper.com/2019/05/07/leetcode-easy-one/"/>
-    <id>https://njphper.com/2019/05/07/leetcode-easy-one/</id>
+    <link href="https://njphper.com/posts/leetcode-easy-one/"/>
+    <id>https://njphper.com/posts/leetcode-easy-one/</id>
     <published>2019-05-07T15:02:42.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -126,8 +122,8 @@
   
   <entry>
     <title>Hexo Next 主题增加新的第三方评论系统 utterance</title>
-    <link href="https://njphper.com/2019/05/06/hexo-add-comment/"/>
-    <id>https://njphper.com/2019/05/06/hexo-add-comment/</id>
+    <link href="https://njphper.com/posts/hexo-add-comment/"/>
+    <id>https://njphper.com/posts/hexo-add-comment/</id>
     <published>2019-05-06T14:00:19.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -156,8 +152,8 @@
   
   <entry>
     <title>Laravel 修改 dingo 异常处理默认 Http Code</title>
-    <link href="https://njphper.com/2019/05/05/dingo-exception/"/>
-    <id>https://njphper.com/2019/05/05/dingo-exception/</id>
+    <link href="https://njphper.com/posts/dingo-exception/"/>
+    <id>https://njphper.com/posts/dingo-exception/</id>
     <published>2019-05-05T10:51:47.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -182,8 +178,8 @@
   
   <entry>
     <title>cURL 报错 error 60 SSL certificate problem unable to get local issuer certificate</title>
-    <link href="https://njphper.com/2019/05/04/curl-error-60/"/>
-    <id>https://njphper.com/2019/05/04/curl-error-60/</id>
+    <link href="https://njphper.com/posts/curl-error-60/"/>
+    <id>https://njphper.com/posts/curl-error-60/</id>
     <published>2019-05-03T18:07:45.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -210,8 +206,8 @@
   
   <entry>
     <title>mac 安装 man 中文手册</title>
-    <link href="https://njphper.com/2019/04/28/mac-install-man/"/>
-    <id>https://njphper.com/2019/04/28/mac-install-man/</id>
+    <link href="https://njphper.com/posts/mac-install-man/"/>
+    <id>https://njphper.com/posts/mac-install-man/</id>
     <published>2019-04-28T06:25:41.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -236,8 +232,8 @@
   
   <entry>
     <title>详解 Linux 文件权限</title>
-    <link href="https://njphper.com/2019/04/23/linux-file-mode/"/>
-    <id>https://njphper.com/2019/04/23/linux-file-mode/</id>
+    <link href="https://njphper.com/posts/linux-file-mode/"/>
+    <id>https://njphper.com/posts/linux-file-mode/</id>
     <published>2019-04-23T07:36:59.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -262,8 +258,8 @@
   
   <entry>
     <title>Mac SSH 连接出现 Host key verification failed 错误解决</title>
-    <link href="https://njphper.com/2019/04/19/mac-vertify-failed/"/>
-    <id>https://njphper.com/2019/04/19/mac-vertify-failed/</id>
+    <link href="https://njphper.com/posts/mac-vertify-failed/"/>
+    <id>https://njphper.com/posts/mac-vertify-failed/</id>
     <published>2019-04-18T21:07:56.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -288,8 +284,8 @@
   
   <entry>
     <title>Go 如何实现兼容 PHP 的密码加密解密</title>
-    <link href="https://njphper.com/2019/04/17/go-to-php-passwordhash/"/>
-    <id>https://njphper.com/2019/04/17/go-to-php-passwordhash/</id>
+    <link href="https://njphper.com/posts/go-to-php-passwordhash/"/>
+    <id>https://njphper.com/posts/go-to-php-passwordhash/</id>
     <published>2019-04-16T21:28:53.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -314,8 +310,8 @@
   
   <entry>
     <title>Jwtauth 自定义认证头信息</title>
-    <link href="https://njphper.com/2019/04/11/jwtauth-header/"/>
-    <id>https://njphper.com/2019/04/11/jwtauth-header/</id>
+    <link href="https://njphper.com/posts/jwtauth-header/"/>
+    <id>https://njphper.com/posts/jwtauth-header/</id>
     <published>2019-04-10T21:30:35.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -334,16 +330,16 @@
       <category term="学习笔记" scheme="https://njphper.com/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     
     
-      <category term="jwt" scheme="https://njphper.com/tags/jwt/"/>
-    
       <category term="laravel" scheme="https://njphper.com/tags/laravel/"/>
+    
+      <category term="jwt" scheme="https://njphper.com/tags/jwt/"/>
     
   </entry>
   
   <entry>
     <title>Go Modules 详解使用</title>
-    <link href="https://njphper.com/2019/04/09/go-module/"/>
-    <id>https://njphper.com/2019/04/09/go-module/</id>
+    <link href="https://njphper.com/posts/go-module/"/>
+    <id>https://njphper.com/posts/go-module/</id>
     <published>2019-04-09T00:00:00.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -370,8 +366,8 @@
   
   <entry>
     <title>Go 陷阱之 for 循环迭代变量</title>
-    <link href="https://njphper.com/2019/04/09/go-for-trap/"/>
-    <id>https://njphper.com/2019/04/09/go-for-trap/</id>
+    <link href="https://njphper.com/posts/go-for-trap/"/>
+    <id>https://njphper.com/posts/go-for-trap/</id>
     <published>2019-04-08T20:26:51.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -396,8 +392,8 @@
   
   <entry>
     <title>Go 陷阱之 for 循环迭代变量</title>
-    <link href="https://njphper.com/2019/04/07/go-for-error/"/>
-    <id>https://njphper.com/2019/04/07/go-for-error/</id>
+    <link href="https://njphper.com/posts/go-for-error/"/>
+    <id>https://njphper.com/posts/go-for-error/</id>
     <published>2019-04-06T21:33:37.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -422,8 +418,8 @@
   
   <entry>
     <title>Waiting(TTFB) 等待时间过长</title>
-    <link href="https://njphper.com/2019/02/22/waitting-ttfb-to-long/"/>
-    <id>https://njphper.com/2019/02/22/waitting-ttfb-to-long/</id>
+    <link href="https://njphper.com/posts/waitting-ttfb-to-long/"/>
+    <id>https://njphper.com/posts/waitting-ttfb-to-long/</id>
     <published>2019-02-21T22:13:17.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -448,8 +444,8 @@
   
   <entry>
     <title>微信分享 JSSDK 实现</title>
-    <link href="https://njphper.com/2018/12/13/wx-sdk-share/"/>
-    <id>https://njphper.com/2018/12/13/wx-sdk-share/</id>
+    <link href="https://njphper.com/posts/wx-sdk-share/"/>
+    <id>https://njphper.com/posts/wx-sdk-share/</id>
     <published>2018-12-12T22:18:36.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -474,8 +470,8 @@
   
   <entry>
     <title>v2ray 更安全的代理服务</title>
-    <link href="https://njphper.com/2018/12/06/v2ray/"/>
-    <id>https://njphper.com/2018/12/06/v2ray/</id>
+    <link href="https://njphper.com/posts/v2ray/"/>
+    <id>https://njphper.com/posts/v2ray/</id>
     <published>2018-12-05T22:45:35.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -500,8 +496,8 @@
   
   <entry>
     <title>Lumen 跨域问题解决</title>
-    <link href="https://njphper.com/2018/11/24/lumen-cros/"/>
-    <id>https://njphper.com/2018/11/24/lumen-cros/</id>
+    <link href="https://njphper.com/posts/lumen-cros/"/>
+    <id>https://njphper.com/posts/lumen-cros/</id>
     <published>2018-11-23T22:46:53.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     
@@ -531,8 +527,8 @@
   
   <entry>
     <title>Lumen 使用 Jwt 过程记录</title>
-    <link href="https://njphper.com/2018/11/21/lumen-jwt/"/>
-    <id>https://njphper.com/2018/11/21/lumen-jwt/</id>
+    <link href="https://njphper.com/posts/lumen-jwt/"/>
+    <id>https://njphper.com/posts/lumen-jwt/</id>
     <published>2018-11-20T22:58:24.000Z</published>
     <updated>2019-05-19T10:19:02.000Z</updated>
     

@@ -21,13 +21,13 @@
   var CONFIG = {
     hostname: new URL('https://njphper.com').hostname,
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '7.7.0',
     exturl: false,
     sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
     copycode: {"enable":true,"show_result":false,"style":"mac"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
     fancybox: false,
     mediumzoom: false,
     lazyload: true,
@@ -46,10 +46,12 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
+  <meta name="description" content="blog记录">
+<meta property="og:type" content="website">
 <meta property="og:title" content="JaguarJack&#39;s Blog">
 <meta property="og:url" content="https://njphper.com/index.html">
 <meta property="og:site_name" content="JaguarJack&#39;s Blog">
+<meta property="og:description" content="blog记录">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="JaguarJack">
 <meta name="twitter:card" content="summary">
@@ -189,12 +191,7 @@
     </header>
 
     
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
   <div class="reading-progress-bar"></div>
-  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
 
 
     <main class="main">
@@ -210,12 +207,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/15/laravel-userfule-method/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/laravel-userfule-method/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -224,7 +221,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/15/laravel-userfule-method/" class="post-title-link" itemprop="url">Laravel 非常有用却不常用的方法记录</a>
+            <a href="/posts/laravel-userfule-method/" class="post-title-link" itemprop="url">Laravel 非常有用却不常用的方法记录</a>
         </h2>
 
         <div class="post-meta">
@@ -241,7 +238,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-05-19 10:19:02" itemprop="dateModified" datetime="2019-05-19T10:19:02Z">2019-05-19</time>
+                <time title="修改时间：2020-02-01 05:05:45" itemprop="dateModified" datetime="2020-02-01T05:05:45Z">2020-02-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -264,8 +261,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/15/laravel-userfule-method/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/15/laravel-userfule-method/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/laravel-userfule-method/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/laravel-userfule-method/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -281,17 +278,14 @@
 
       
           <p>本篇博客记录一些 Laravel 框架一些不常用但非常实用的方法。或者一些非常有用的小技巧，可以显著提高代码的可读性。并且记录一些难以发现的技巧性的使用。</p>
-<h2 id="获取表结构信息"><a href="#获取表结构信息" class="headerlink" title="获取表结构信息"></a>获取表结构信息</h2><p>网上有很多关于 <code>Laravel</code> 获取表信息的文章，很多都是这样的</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取数据库所有表信息</span></span><br><span class="line">DB::select(<span class="string">'show tables'</span>)</span><br><span class="line"><span class="comment">// 获取表 column 信息</span></span><br><span class="line">Db::select(<span class="string">'show full columns from  $table'</span>)</span><br><span class="line"><span class="comment">// 获取表信息</span></span><br><span class="line">DB::select(<span class="string">'show table status'</span>))</span><br></pre></td></tr></table></figure>
-<p>当然这样是可以获取到的，没有任何问题，关键这样让代码看起来有点难受，其实 <code>Laravel</code> 提供了一系列这样的操作。下面来提供该演示:</p>
-<h3 id="获取所有表"><a href="#获取所有表" class="headerlink" title="获取所有表"></a>获取所有表</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineSchemaManager()-&gt;listTableNames())</span><br></pre></td></tr></table></figure>
-
-<h3 id="获取表所有-Column-字段"><a href="#获取表所有-Column-字段" class="headerlink" title="获取表所有 Column 字段"></a>获取表所有 Column 字段</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\Schema::getColumnListing(<span class="string">'table'</span>))</span><br></pre></td></tr></table></figure>
-
-<h3 id="获取表单个字段的信息"><a href="#获取表单个字段的信息" class="headerlink" title="获取表单个字段的信息"></a>获取表单个字段的信息</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取单个字段信息</span></span><br><span class="line">$field = \Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineColumn(<span class="string">'table'</span>, <span class="string">'field_name'</span>)</span><br><span class="line">$field-&gt;getComment(); <span class="comment">// 获取注释</span></span><br><span class="line">$field-&gt;getType(); <span class="comment">// 获取类型</span></span><br></pre></td></tr></table></figure>
-<h3 id="获取表信息"><a href="#获取表信息" class="headerlink" title="获取表信息"></a>获取表信息</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Illuminate\Support\Facades\DB::connection()-&gt;getDoctrineSchemaManager()-&gt;listTableDetails(<span class="string">'table'</span>)-&gt;getOptions());</span><br></pre></td></tr></table></figure>
-
-<h2 id="数据库操作"><a href="#数据库操作" class="headerlink" title="数据库操作"></a>数据库操作</h2>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/laravel-userfule-method/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -310,12 +304,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/09/ie-urlencode/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/ie-urlencode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -324,7 +318,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/09/ie-urlencode/" class="post-title-link" itemprop="url">解决 IE/Edge 导出 Excel 中文文件名乱码</a>
+            <a href="/posts/ie-urlencode/" class="post-title-link" itemprop="url">解决 IE/Edge 导出 Excel 中文文件名乱码</a>
         </h2>
 
         <div class="post-meta">
@@ -364,8 +358,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/09/ie-urlencode/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/09/ie-urlencode/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/ie-urlencode/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/ie-urlencode/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -403,12 +397,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/08/nginx-conf/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/nginx-conf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -417,7 +411,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/08/nginx-conf/" class="post-title-link" itemprop="url">Nginx 学习笔记</a>
+            <a href="/posts/nginx-conf/" class="post-title-link" itemprop="url">Nginx 学习笔记</a>
         </h2>
 
         <div class="post-meta">
@@ -457,8 +451,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/08/nginx-conf/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/08/nginx-conf/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/nginx-conf/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/nginx-conf/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -504,12 +498,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/07/leetcode-easy-one/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/leetcode-easy-one/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -518,7 +512,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/07/leetcode-easy-one/" class="post-title-link" itemprop="url">leetcode 简单题（一）</a>
+            <a href="/posts/leetcode-easy-one/" class="post-title-link" itemprop="url">leetcode 简单题（一）</a>
         </h2>
 
         <div class="post-meta">
@@ -558,8 +552,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/07/leetcode-easy-one/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/07/leetcode-easy-one/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/leetcode-easy-one/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/leetcode-easy-one/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -637,12 +631,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/06/hexo-add-comment/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/hexo-add-comment/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -651,7 +645,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/06/hexo-add-comment/" class="post-title-link" itemprop="url">Hexo Next 主题增加新的第三方评论系统 utterance</a>
+            <a href="/posts/hexo-add-comment/" class="post-title-link" itemprop="url">Hexo Next 主题增加新的第三方评论系统 utterance</a>
         </h2>
 
         <div class="post-meta">
@@ -691,8 +685,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/06/hexo-add-comment/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/06/hexo-add-comment/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/hexo-add-comment/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/hexo-add-comment/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -763,12 +757,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/05/dingo-exception/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/dingo-exception/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -777,7 +771,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/05/dingo-exception/" class="post-title-link" itemprop="url">Laravel 修改 dingo 异常处理默认 Http Code</a>
+            <a href="/posts/dingo-exception/" class="post-title-link" itemprop="url">Laravel 修改 dingo 异常处理默认 Http Code</a>
         </h2>
 
         <div class="post-meta">
@@ -817,8 +811,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/05/dingo-exception/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/05/dingo-exception/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/dingo-exception/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/dingo-exception/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -868,12 +862,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/05/04/curl-error-60/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/curl-error-60/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -882,7 +876,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/05/04/curl-error-60/" class="post-title-link" itemprop="url">cURL 报错 error 60 SSL certificate problem unable to get local issuer certificate</a>
+            <a href="/posts/curl-error-60/" class="post-title-link" itemprop="url">cURL 报错 error 60 SSL certificate problem unable to get local issuer certificate</a>
         </h2>
 
         <div class="post-meta">
@@ -922,8 +916,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/05/04/curl-error-60/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/04/curl-error-60/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/curl-error-60/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/curl-error-60/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -968,12 +962,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/04/28/mac-install-man/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/mac-install-man/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -982,7 +976,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/04/28/mac-install-man/" class="post-title-link" itemprop="url">mac 安装 man 中文手册</a>
+            <a href="/posts/mac-install-man/" class="post-title-link" itemprop="url">mac 安装 man 中文手册</a>
         </h2>
 
         <div class="post-meta">
@@ -1022,8 +1016,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/04/28/mac-install-man/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/04/28/mac-install-man/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/mac-install-man/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/mac-install-man/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -1064,12 +1058,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/04/23/linux-file-mode/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/linux-file-mode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1078,7 +1072,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/04/23/linux-file-mode/" class="post-title-link" itemprop="url">详解 Linux 文件权限</a>
+            <a href="/posts/linux-file-mode/" class="post-title-link" itemprop="url">详解 Linux 文件权限</a>
         </h2>
 
         <div class="post-meta">
@@ -1118,8 +1112,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/04/23/linux-file-mode/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/04/23/linux-file-mode/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/linux-file-mode/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/linux-file-mode/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -1230,12 +1224,12 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://njphper.com/2019/04/19/mac-vertify-failed/">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/posts/mac-vertify-failed/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
       <meta itemprop="name" content="JaguarJack">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="blog记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1244,7 +1238,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/04/19/mac-vertify-failed/" class="post-title-link" itemprop="url">Mac SSH 连接出现 Host key verification failed 错误解决</a>
+            <a href="/posts/mac-vertify-failed/" class="post-title-link" itemprop="url">Mac SSH 连接出现 Host key verification failed 错误解决</a>
         </h2>
 
         <div class="post-meta">
@@ -1284,8 +1278,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/04/19/mac-vertify-failed/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/04/19/mac-vertify-failed/" itemprop="commentCount"></span>
+    <a title="valine" href="/posts/mac-vertify-failed/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/mac-vertify-failed/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -1389,8 +1383,10 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="JaguarJack"
+      src="/images/avatar.jpg">
   <p class="site-author-name" itemprop="name">JaguarJack</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">blog记录</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
@@ -1447,6 +1443,10 @@
   </div>
 
       </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
 
     </div>
   </aside>
@@ -1474,7 +1474,7 @@
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
   </div>
   <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
   </div>
 
         
@@ -1521,8 +1521,6 @@
 
 
 <script src="/js/next-boot.js"></script>
-
-<script src="/js/bookmark.js"></script>
 
 
 
