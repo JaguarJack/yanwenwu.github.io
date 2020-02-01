@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://njphper.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":false,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: true,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Golang的面向对象机制与Smalltalk或者Java等传统面向对象的编程语言不同。传统面向对象编程语言的一个重要特性是继承机制。因为继承机制支持在关联对象间进行代码复用和数据共享。继承机制曾在代码复用和数据共享的设计模式占据主导地位，但是目前组合这一古老的技术重新焕发了活力。  本篇文章转自 Tim Henderson的 &quot;Object Oriented Inheritance i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 中的面向对象继承">
+<meta property="og:url" content="https://njphper.com/2018/10/26/go-interface-object/index.html">
+<meta property="og:site_name" content="JaguarJack&#39;s Blog">
+<meta property="og:description" content="Golang的面向对象机制与Smalltalk或者Java等传统面向对象的编程语言不同。传统面向对象编程语言的一个重要特性是继承机制。因为继承机制支持在关联对象间进行代码复用和数据共享。继承机制曾在代码复用和数据共享的设计模式占据主导地位，但是目前组合这一古老的技术重新焕发了活力。  本篇文章转自 Tim Henderson的 &quot;Object Oriented Inheritance i">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-10-26T02:08:34.000Z">
+<meta property="article:modified_time" content="2019-05-19T10:19:02.000Z">
+<meta property="article:author" content="JaguarJack">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="面向对象">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://njphper.com/2018/10/26/go-interface-object/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Golang 中的面向对象继承 | JaguarJack's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="JaguarJack's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JaguarJack's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">做人呢最重要的就是开心</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/2018/10/26/go-interface-object/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JaguarJack">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JaguarJack's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Golang 中的面向对象继承
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-10-26 02:08:34" itemprop="dateCreated datePublished" datetime="2018-10-26T02:08:34Z">2018-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-05-19 10:19:02" itemprop="dateModified" datetime="2019-05-19T10:19:02Z">2019-05-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index">
+                    <span itemprop="name">学习笔记</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2018/10/26/go-interface-object/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2018/10/26/go-interface-object/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Golang的面向对象机制与Smalltalk或者Java等传统面向对象的编程语言不同。传统面向对象编程语言的一个重要特性是继承机制。因为继承机制支持在关联对象间进行代码复用和数据共享。继承机制曾在代码复用和数据共享的设计模式占据主导地位，但是目前组合这一古老的技术重新焕发了活力。</p>
+<blockquote>
+<p>本篇文章转自 <code>Tim Henderson的 &quot;Object Oriented Inheritance in Go&quot;</code>， 原文地址是 <a href="http://hackthology.com/object-oriented-inheritance-in-go.html" target="_blank" rel="noopener">http://hackthology.com/object-oriented-inheritance-in-go.html</a> 。非常感谢李浩和骏奇对于这篇文章的翻译。</p>
+</blockquote>
+<p>在我们探讨如何在** Go** 中实现继承机制之前（Golong 中的继承机制和其他语言 (Java) 的继承机制有区别），我们先看一下 <strong>Java</strong> 中如何实现继承机制。</p>
+<h2 id="继承与组合"><a href="#继承与组合" class="headerlink" title="继承与组合"></a>继承与组合</h2><p>让我们先看一下我最喜欢的话题之一：编译器！编译器由管道转换构成，该管道读取 text 文本并将其转化为机器代码、汇编语言、字节码或者其他的编程语言。管道首先会使用语法分析器对目标变成语言进行语法分析。一般情况下文本会被分解为不同的组成部分，例如：关键词、标识符、标点和数字等等。每个组成部分都会被相应的数据类型标记。例如下面这个 <strong>Java</strong> 数据类型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这些组成部分（可以称作标记）如下所示：</p>
+<blockquote>
+<p>public keyword, “public”<br>class keyword, “class”<br>idenitifier, “Main”<br>left-bracket, “{“<br>right-bracket, “}”</p>
+</blockquote>
+<p>这些标记可以划分为两个部分：</p>
+<blockquote>
+<p>标记类型<br>语义部分</p>
+</blockquote>
+<p>这会导致我们进行如下的 <strong>Java</strong> 设计方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> TokenType &#123;</span><br><span class="line">	KEYWORD, IDENTIFIER, LBRACKET, RBRACKET, ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Token</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> TokenToken type;</span><br><span class="line">    **Here, I think TokenToken should be <span class="string">"TokenType"</span>**</span><br><span class="line">    <span class="keyword">public</span> String lexeme;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于一些标记类型来说，例如数值常量，标记类型最好能够将包含这些属性信息。就数值常量来说，在他的标记类型里应该包括常量值这一属性。实现这一设计的传统方式是使用继承机制产生 <code>Token</code> 子类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerConstant</span> <span class="keyword">extends</span> <span class="title">Token</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">long</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另外一种完成该设计的方式是利用组合方式产生 <code>IntegerConstant</code>，<code>IntegerConstant</code> 包含 <strong>token</strong> 的引用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerConstant</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> Token type;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">long</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，继承机制是一个比较恰当的选择。理由是语法分析器需要返回一个通用类型。考虑一下语法分析器的接口设计：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Lexer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Lexer</span><span class="params">(InputStream in)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">EOF</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> Token <span class="title">peek</span><span class="params">()</span> <span class="keyword">throws</span> Error</span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> Token <span class="title">next</span><span class="params">()</span> <span class="keyword">throws</span> Error</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>在继承机制中，<code>IntegerConstant</code> 属于Token类型，所以它可以在Lexer中调用。这不是唯一可用或者最好的设计，但是这种设计方式是有效的。让我们看一下 <strong>Go</strong> 是如何完成这一目的的。</p>
+<h2 id="Inheritance-and-Composition-in-Go"><a href="#Inheritance-and-Composition-in-Go" class="headerlink" title="Inheritance and Composition in Go"></a>Inheritance and Composition in Go</h2><p><strong>Go</strong> 中实现组合是一件十分容易的事情。简单组合两个结构体就能够构造一个新的数据类型。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">type TokenType uint16</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    KEYWORD TokenType = iota</span><br><span class="line">    IDENTIFIER</span><br><span class="line">    LBRACKET</span><br><span class="line">    RBRACKET</span><br><span class="line">    INT</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type Token struct &#123;</span><br><span class="line">  Type   TokenType</span><br><span class="line">  Lexeme string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type IntegerConstant struct &#123;</span><br><span class="line">  Token *Token</span><br><span class="line">  Value uint64</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这就是 <strong>Go</strong> 中实现代码和数据共享的常用方式。然而如果你想实现继承机制，我们该如何去做？</p>
+<h3 id="Why-would-you-want-to-use-inheritance-in-go"><a href="#Why-would-you-want-to-use-inheritance-in-go" class="headerlink" title="Why would you want to use inheritance in go"></a>Why would you want to use inheritance in go</h3><p>一个可选的方案是将 <strong>Token</strong> 设计成接口类型。这种方案在 <strong>Java</strong> 和** Go** 都适用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">type Token <span class="class"><span class="keyword">interface</span> </span>&#123;</span><br><span class="line">  Type()   TokenType</span><br><span class="line">  Lexeme() string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Match struct &#123;</span><br><span class="line">  toktype TokenType</span><br><span class="line">  lexeme  string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type IntegerConstant struct &#123;</span><br><span class="line">  token Token</span><br><span class="line">  value uint64</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (m *Match) Type() TokenType &#123;</span><br><span class="line">  <span class="keyword">return</span> m.toktype</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (m *Match) Lexeme() string &#123;</span><br><span class="line">  <span class="keyword">return</span> m.lexeme</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (i *IntegerConstant) Type() TokenType &#123;</span><br><span class="line">  <span class="keyword">return</span> i.token.Type()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (i *IntegerConstant) Lexeme() string &#123;</span><br><span class="line">  <span class="keyword">return</span> i.token.Lexeme()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (i *IntegerConstant) Value() uint64 &#123;</span><br><span class="line">  <span class="keyword">return</span> i.value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样分析器就可以返回满足 <code>Match</code> 和 <code>IntegerConstant</code> 类型的 <strong>Token</strong> 接口。</p>
+<h3 id="继承机制的简化版"><a href="#继承机制的简化版" class="headerlink" title="继承机制的简化版"></a>继承机制的简化版</h3><p>上面的实现方案的一个问题是 <code>*IntegerConstant</code> 的方法调用中，出现了重复造轮子的问题。但是我们可以使用<strong>Go</strong> 内建的嵌入机制来避免此类情况的出现。嵌入机制(匿名嵌入)允许类型之前共享代码和数据。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">type IntegerConstant struct &#123;</span><br><span class="line">  Token</span><br><span class="line">  value uint64</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (i *IntegerConstant) Value() uint64 &#123;</span><br><span class="line">  <span class="keyword">return</span> i.value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>IntegerConstant中</code> 匿名嵌入了** Token** 类型，使得 <code>IntegerConstant</code> <strong>“继承</strong>“了 <strong>Token</strong> 的字段和方法。很酷的方法！我们可以这样写代码：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t := IntegerConstant&#123;&amp;Match&#123;KEYWORD, <span class="string">"wizard"</span>&#125;, <span class="number">2</span>&#125;</span><br><span class="line">fmt.Println(t.Type(), t.Lexeme(), t.Value())</span><br><span class="line">x := Token(t)</span><br><span class="line">fmt.Println(x.Type(), x.Lexeme())</span><br></pre></td></tr></table></figure>
+<p>(可以在这里试一下 ：<a href="https://play.golang.org/p/PJW7VShpE0" target="_blank" rel="noopener">https://play.golang.org/p/PJW7VShpE0</a>)</p>
+<p>我们没有编写 <code>Type()</code> 和 <code>Value()</code> 方法的代码，但是 <code>*IntegerConstant</code> 也实现了 <strong>Token</strong> 接口，非常棒。</p>
+<h3 id="结构体的”继承”机制"><a href="#结构体的”继承”机制" class="headerlink" title="结构体的”继承”机制"></a>结构体的”继承”机制</h3><p><strong>Go</strong> 中有三种方式完成”继承“机制，您已经看到了第一种实现方式：在结构体的第一个字段匿名嵌入接口类型。你还可以利用结构体实现其他两种”<strong>继承</strong>“机制：<br>1.匿名嵌入结构体实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">type IntegerConstant struct &#123;</span><br><span class="line">  Match</span><br><span class="line">  value uint64</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.匿名嵌入结构体实例指针</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> IntegerConstant <span class="keyword">struct</span> &#123;</span><br><span class="line">  *Match</span><br><span class="line">  value <span class="keyword">uint64</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在所有的例子中，与正常嵌入类型不同的是我们使用匿名嵌入。然而，这个字段还是有字段名称的，名称是嵌入类型名称。在<code>IntegerConstant</code> 的 <code>Match</code> 字段中，字段名称是 <code>Match</code>，无论嵌入类型是实例还是指针。</p>
+<p>在以上的方案中，你不能嵌入与嵌入类型相同的方法名。例如结构体 <code>Bar</code> 匿名嵌入结构体 <code>Foo</code> 后，就不能拥有名称为 <code>Foo</code> 的方法，同样也不能实现 <code>type Fooer interface { Foo() }</code> 接口类型。</p>
+<h3 id="共享代码、共享数据或者两者兼得"><a href="#共享代码、共享数据或者两者兼得" class="headerlink" title="共享代码、共享数据或者两者兼得"></a>共享代码、共享数据或者两者兼得</h3><p>相比于 <strong>Java</strong>，<strong>Go</strong> 在继承和聚合之间的界限是很模糊的。<strong>Go</strong> 中没有 <strong>extends</strong> 关键词。在语法的层次上，继承看上去与聚合没有什么区别。<strong>Go</strong> 中<code>聚合</code>跟<code>继承</code>唯一的不同在于，继承自其他结构体的 <strong>struct</strong> 类型可以直接访问父类结构体的字段和方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">type Pet struct &#123;</span><br><span class="line">  name string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Dog struct &#123;</span><br><span class="line">  Pet</span><br><span class="line">  Breed string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Speak() string &#123;</span><br><span class="line">  <span class="keyword">return</span> fmt.Sprintf(<span class="string">"my name is %v"</span>, p.name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Name() string &#123;</span><br><span class="line">  <span class="keyword">return</span> p.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (d *Dog) Speak() string &#123;</span><br><span class="line">  <span class="keyword">return</span> fmt.Sprintf(<span class="string">"%v and I am a %v"</span>, d.Pet.Speak(), d.Breed)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  d := Dog&#123;Pet: Pet&#123;name: <span class="string">"spot"</span>&#125;, Breed: <span class="string">"pointer"</span>&#125;</span><br><span class="line">  fmt.Println(d.Name())</span><br><span class="line">  fmt.Println(d.Speak())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(可以试一下 <a href="https://play.golang.org/p/Pmkd27Nqqy" target="_blank" rel="noopener">https://play.golang.org/p/Pmkd27Nqqy</a>)</p>
+<p>输出：</p>
+<blockquote>
+<p>spot<br>my name is spot and I am a pointer</p>
+</blockquote>
+<h3 id="嵌入式继承机制的的局限"><a href="#嵌入式继承机制的的局限" class="headerlink" title="嵌入式继承机制的的局限"></a>嵌入式继承机制的的局限</h3><p>相比于** Java<strong>，</strong> Go** 的继承机制的作用是非常有限的。有很多的设计方案可以在 <strong>Java</strong> 轻松实现，但是 <strong>Go</strong> 却不可能完成同样的工作。让我们看一下：</p>
+<h3 id="Overriding-Methods"><a href="#Overriding-Methods" class="headerlink" title="Overriding Methods"></a>Overriding Methods</h3><p>上面的 <code>Pet</code> 例子中，<code>Dog</code> 类型重载了 <code>Speak()</code> 方法。然而如果 <code>Pet</code> 有另外一个方法 <code>Play()</code> 被调用，但是 <code>Dog</code> 没有实现 <code>Play()</code> 的时候，<code>Dog</code> 类型的 <code>Speak()</code> 方法则不会被调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type Pet struct &#123;</span><br><span class="line">    name string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Dog struct &#123;</span><br><span class="line">    Pet</span><br><span class="line">    Breed string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Play() &#123;</span><br><span class="line">    fmt.Println(p.Speak())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"my name is %v"</span>, p.name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Name() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (d *Dog) Speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"%v and I am a %v"</span>, d.Pet.Speak(), d.Breed)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    d := Dog&#123;Pet: Pet&#123;name: <span class="string">"spot"</span>&#125;, Breed: <span class="string">"pointer"</span>&#125;</span><br><span class="line">    fmt.Println(d.Name())</span><br><span class="line">    fmt.Println(d.Speak())</span><br><span class="line">    d.Play()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(试一下 <a href="https://play.golang.org/p/id-aDKW8L6" target="_blank" rel="noopener">https://play.golang.org/p/id-aDKW8L6</a>)</p>
+<p>输出：</p>
+<blockquote>
+<p>spot<br>my name is spot and I am a pointer<br>my name is spot</p>
+</blockquote>
+<p>但是 <strong>Java</strong> 中就会像我们预想的那样工作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Dog d = <span class="keyword">new</span> Dog(<span class="string">"spot"</span>, <span class="string">"pointer"</span>);</span><br><span class="line">    System.out.println(d.Name());</span><br><span class="line">    System.out.println(d.Speak());</span><br><span class="line">    d.Play();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pet</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> String name;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Pet</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.name = name;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Play</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(Speak());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">Speak</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> String.format(<span class="string">"my name is %s"</span>, name);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">Name</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> name;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span> <span class="keyword">extends</span> <span class="title">Pet</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> String breed;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Dog</span><span class="params">(String name, String breed)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(name);</span><br><span class="line">    <span class="keyword">this</span>.breed = breed;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">Speak</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> String.format(<span class="string">"my name is %s and I am a %s"</span>, name, breed);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<blockquote>
+<p>$ javac Main.java &amp;&amp; java Main<br>spot<br>my name is spot and I am a pointer<br>my name is spot and I am a pointer</p>
+</blockquote>
+<p>这个明显的区别是因为 <strong>Go</strong> 从根本上阻止了抽象方法的使用。让我们看看下面这个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type Pet struct &#123;</span><br><span class="line">    <span class="function">speaker <span class="title">func</span><span class="params">()</span> string</span></span><br><span class="line"><span class="function">    name    string</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">type Dog struct </span>&#123;</span><br><span class="line">    Pet</span><br><span class="line">    Breed string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">NewPet</span><span class="params">(name string)</span> *Pet </span>&#123;</span><br><span class="line">    p := &amp;Pet&#123;</span><br><span class="line">        name: name,</span><br><span class="line">    &#125;</span><br><span class="line">    p.speaker = p.speak</span><br><span class="line">    <span class="keyword">return</span> p</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Play() &#123;</span><br><span class="line">    fmt.Println(p.Speak())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.speaker()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"my name is %v"</span>, p.name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Name() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">NewDog</span><span class="params">(name, breed string)</span> *Dog </span>&#123;</span><br><span class="line">    d := &amp;Dog&#123;</span><br><span class="line">        Pet:   Pet&#123;name: name&#125;,</span><br><span class="line">        Breed: breed,</span><br><span class="line">    &#125;</span><br><span class="line">    d.speaker = d.speak</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (d *Dog) speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"%v and I am a %v"</span>, d.Pet.speak(), d.Breed)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    d := NewDog(<span class="string">"spot"</span>, <span class="string">"pointer"</span>)</span><br><span class="line">    fmt.Println(d.Name())</span><br><span class="line">    fmt.Println(d.Speak())</span><br><span class="line">    d.Play()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(试一下 <a href="https://play.golang.org/p/9iIb2px7jH" target="_blank" rel="noopener">https://play.golang.org/p/9iIb2px7jH</a>)</p>
+<p>输出：</p>
+<blockquote>
+<p>spot<br>my name is spot and I am a pointer<br>my name is spot and I am a pointer</p>
+</blockquote>
+<p>现在跟我们预想的一样了，但是跟Java相比略显冗长和晦涩。你必须手工重载方法签名。而且，代码在结构体未正确初始化的情况下会崩溃，例如当调用 <code>Speak()</code> 时，<code>speaker()</code> 却没有完成初始化工作的时候。</p>
+<p><code>Subtyping</code> 在 <code>Java</code> 中，<code>Dog</code> 继承自 <code>Pet</code> ，那么 <code>Dog</code> 类型就是 <code>Pet</code> 子类。这意味着在任何需要调用 <code>Pet</code> 类型的场景都可以使用 <code>Dog</code> 类型替换。这种关系称作多态性，但 <code>Go</code> 的结构体类型不存在这种机制。<br>让我们看下面的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type Pet struct &#123;</span><br><span class="line">    <span class="function">speaker <span class="title">func</span><span class="params">()</span> string</span></span><br><span class="line"><span class="function">    name    string</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">type Dog struct </span>&#123;</span><br><span class="line">    Pet</span><br><span class="line">    Breed string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">NewPet</span><span class="params">(name string)</span> *Pet </span>&#123;</span><br><span class="line">    p := &amp;Pet&#123;</span><br><span class="line">        name: name,</span><br><span class="line">    &#125;</span><br><span class="line">    p.speaker = p.speak</span><br><span class="line">    <span class="keyword">return</span> p</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Play() &#123;</span><br><span class="line">    fmt.Println(p.Speak())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.speaker()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"my name is %v"</span>, p.name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *Pet) Name() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">NewDog</span><span class="params">(name, breed string)</span> *Dog </span>&#123;</span><br><span class="line">    d := &amp;Dog&#123;</span><br><span class="line">        Pet:   Pet&#123;name: name&#125;,</span><br><span class="line">        Breed: breed,</span><br><span class="line">    &#125;</span><br><span class="line">    d.speaker = d.speak</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (d *Dog) speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"%v and I am a %v"</span>, d.Pet.speak(), d.Breed)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">Play</span><span class="params">(p *Pet)</span> </span>&#123;</span><br><span class="line">    p.Play()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    d := NewDog(<span class="string">"spot"</span>, <span class="string">"pointer"</span>)</span><br><span class="line">    fmt.Println(d.Name())</span><br><span class="line">    fmt.Println(d.Speak())</span><br><span class="line">    Play(d)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(试一下 <a href="https://play.golang.org/p/e1Ujx0VhwK" target="_blank" rel="noopener">https://play.golang.org/p/e1Ujx0VhwK</a>)</p>
+<p>输出：</p>
+<blockquote>
+<p>prog.go:62: cannot use d (type *Dog) as type *Pet in argument to Play</p>
+</blockquote>
+<p>然而，接口类型中存在子类化的多态机制！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type Pet <span class="class"><span class="keyword">interface</span> </span>&#123;</span><br><span class="line">    Name() string</span><br><span class="line">    Speak() string</span><br><span class="line">    Play()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type pet struct &#123;</span><br><span class="line">    <span class="function">speaker <span class="title">func</span><span class="params">()</span> string</span></span><br><span class="line"><span class="function">    name    string</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">type Dog interface </span>&#123;</span><br><span class="line">    Pet</span><br><span class="line">    Breed() string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type dog struct &#123;</span><br><span class="line">    pet</span><br><span class="line">    breed string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">NewPet</span><span class="params">(name string)</span> *pet </span>&#123;</span><br><span class="line">    p := &amp;pet&#123;</span><br><span class="line">        name: name,</span><br><span class="line">    &#125;</span><br><span class="line">    p.speaker = p.speak</span><br><span class="line">    <span class="keyword">return</span> p</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *pet) Play() &#123;</span><br><span class="line">    fmt.Println(p.Speak())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *pet) Speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.speaker()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *pet) speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"my name is %v"</span>, p.name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (p *pet) Name() string &#123;</span><br><span class="line">    <span class="keyword">return</span> p.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">NewDog</span><span class="params">(name, breed string)</span> *dog </span>&#123;</span><br><span class="line">    d := &amp;dog&#123;</span><br><span class="line">        pet:   pet&#123;name: name&#125;,</span><br><span class="line">        breed: breed,</span><br><span class="line">    &#125;</span><br><span class="line">    d.speaker = d.speak</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (d *dog) speak() string &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"%v and I am a %v"</span>, d.pet.speak(), d.breed)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">Play</span><span class="params">(p Pet)</span> </span>&#123;</span><br><span class="line">    p.Play()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">func <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    d := NewDog(<span class="string">"spot"</span>, <span class="string">"pointer"</span>)</span><br><span class="line">    fmt.Println(d.Name())</span><br><span class="line">    fmt.Println(d.Speak())</span><br><span class="line">    Play(d)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(试一下 <a href="https://play.golang.org/p/WMH-cr4AJf" target="_blank" rel="noopener">https://play.golang.org/p/WMH-cr4AJf</a>)</p>
+<p>输出：</p>
+<blockquote>
+<p>spot<br>my name is spot and I am a pointer<br>my name is spot and I am a pointer</p>
+</blockquote>
+<p>所以接口类型可以用来实现子类化的机制。但是如果你想正确的实现方法重载，需要了解以上的技巧。</p>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>   事实上，虽然这不是Go的主打特性，但是Go语言在结构体嵌入结构体或者接口方面的能力确实为实际工作增加了很大的灵活性。Go的这些特性为我们解决实际问题提供了新的解决方案。但是相较于Java等语言，由于Go缺少子类化和方法重载支持还有存在一些局限性。Go含有一项Java没有的特性–接口嵌入。关于接口嵌入的细节请参考Golang的官方文档的Embedding部分。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果文章对你有所帮助，不妨请作者喝杯咖啡</div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>JaguarJack
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://njphper.com/2018/10/26/go-interface-object/" title="Golang 中的面向对象继承">https://njphper.com/2018/10/26/go-interface-object/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+              <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag"># 面向对象</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/23/go-slice/" rel="prev" title="go 切片探索">
+      <i class="fa fa-chevron-left"></i> go 切片探索
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/10/28/go-redis-client/" rel="next" title="Go 实现简易的 redis 客户端">
+      Go 实现简易的 redis 客户端 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#继承与组合"><span class="nav-number">1.</span> <span class="nav-text">继承与组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Inheritance-and-Composition-in-Go"><span class="nav-number">2.</span> <span class="nav-text">Inheritance and Composition in Go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-would-you-want-to-use-inheritance-in-go"><span class="nav-number">2.1.</span> <span class="nav-text">Why would you want to use inheritance in go</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承机制的简化版"><span class="nav-number">2.2.</span> <span class="nav-text">继承机制的简化版</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结构体的”继承”机制"><span class="nav-number">2.3.</span> <span class="nav-text">结构体的”继承”机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#共享代码、共享数据或者两者兼得"><span class="nav-number">2.4.</span> <span class="nav-text">共享代码、共享数据或者两者兼得</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌入式继承机制的的局限"><span class="nav-number">2.5.</span> <span class="nav-text">嵌入式继承机制的的局限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Overriding-Methods"><span class="nav-number">2.6.</span> <span class="nav-text">Overriding Methods</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conclusion"><span class="nav-number">2.7.</span> <span class="nav-text">Conclusion</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JaguarJack</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanwenwu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanwenwu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:njphper@gmail.com" title="E-Mail → mailto:njphper@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友情连接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.baiyf.com/" title="http:&#x2F;&#x2F;www.baiyf.com&#x2F;" rel="noopener" target="_blank">白云飞博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.pig87.com/" title="http:&#x2F;&#x2F;blog.pig87.com&#x2F;" rel="noopener" target="_blank">学习博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">苏ICP备14056477号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JaguarJack</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: true,
+      notify: true,
+      appId: 'VcMKWacK2z1EvBmxCT8USAd9-gzGzoHsz',
+      appKey: 'VHhJKU7Qfzeae6lpafaY5UAB',
+      placeholder: "留下评论再走~",
+      avatar: 'retro',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: false,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

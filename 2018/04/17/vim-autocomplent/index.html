@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://njphper.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":false,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: true,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="VIM准备阶段， 一台空的centos7系统。如果你所使用的环境不是初始化的服务器的话， 以下请适当安装需要的依赖。安装这个果然是很难啊，我不得不说太难了， 翻阅了很多 资料， 各种google。 尤其是在centos上， 简直了， 如果是乌班图Ubuntu的话， 可能还好一点，因为在编译的YcmCompleteMe的时候， 自动下载的clang是Ubuntu的，所以之后需要centos需要自己编">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vim 自动补全集成方案">
+<meta property="og:url" content="https://njphper.com/2018/04/17/vim-autocomplent/index.html">
+<meta property="og:site_name" content="JaguarJack&#39;s Blog">
+<meta property="og:description" content="VIM准备阶段， 一台空的centos7系统。如果你所使用的环境不是初始化的服务器的话， 以下请适当安装需要的依赖。安装这个果然是很难啊，我不得不说太难了， 翻阅了很多 资料， 各种google。 尤其是在centos上， 简直了， 如果是乌班图Ubuntu的话， 可能还好一点，因为在编译的YcmCompleteMe的时候， 自动下载的clang是Ubuntu的，所以之后需要centos需要自己编">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-04-17T02:14:55.000Z">
+<meta property="article:modified_time" content="2019-05-19T10:19:02.000Z">
+<meta property="article:author" content="JaguarJack">
+<meta property="article:tag" content="vim">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://njphper.com/2018/04/17/vim-autocomplent/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Vim 自动补全集成方案 | JaguarJack's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="JaguarJack's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JaguarJack's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">做人呢最重要的就是开心</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://njphper.com/2018/04/17/vim-autocomplent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JaguarJack">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JaguarJack's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Vim 自动补全集成方案
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-17 02:14:55" itemprop="dateCreated datePublished" datetime="2018-04-17T02:14:55Z">2018-04-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-05-19 10:19:02" itemprop="dateModified" datetime="2019-05-19T10:19:02Z">2019-05-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index">
+                    <span itemprop="name">服务器运维</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2018/04/17/vim-autocomplent/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2018/04/17/vim-autocomplent/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="VIM"><a href="#VIM" class="headerlink" title="VIM"></a>VIM</h1><p>准备阶段， 一台空的centos7系统。如果你所使用的环境不是初始化的服务器的话， 以下请适当安装需要的依赖。安装这个果然是很难啊，我不得不说太难了， 翻阅了很多 资料， 各种google。 尤其是在centos上， 简直了， 如果是乌班图Ubuntu的话， 可能还好一点，因为在编译的YcmCompleteMe的时候， 自动下载的clang是Ubuntu的，所以之后需要centos需要自己编译安装</p>
+<h2 id="安装一些基础的依赖"><a href="#安装一些基础的依赖" class="headerlink" title="安装一些基础的依赖"></a>安装一些基础的依赖</h2><blockquote>
+<p>yum -y update<br>yum -y install git<br>yum -y install ncurses-devel<br>yum install python-devel libffi-devel graphviz-devel elfutils-libelf-devel readline-devel libedit-devel libxml2-devel protobuf-devel gtext-devel doxygen swig -y</p>
+</blockquote>
+<h2 id="升级gcc-amp-vim"><a href="#升级gcc-amp-vim" class="headerlink" title="升级gcc &amp; vim"></a>升级gcc &amp; vim</h2><blockquote>
+<p>yum install centos-release-scl -y<br>yum install devtoolset-3-toolchain -y<br>yum install gcc-c++<br>scl enable devtoolset-3 bash</p>
+</blockquote>
+<p>安装最新版vim， 最好是8.0以上， 不然会出现问题。<br>vim //查看你的vim版本</p>
+<blockquote>
+<p>git clone <a href="https://github.com/vim/vim.git" target="_blank" rel="noopener">https://github.com/vim/vim.git</a><br>cd vim/src/<br>./configure –with-features=huge -enable-pythoninterp –with-python-config-dir=/usr/lib/python2.7/config<br>make &amp;&amp; make install</p>
+</blockquote>
+<h2 id="安装Vundle-插件管理"><a href="#安装Vundle-插件管理" class="headerlink" title="安装Vundle 插件管理"></a>安装Vundle 插件管理</h2><blockquote>
+<p>git clone <a href="https://github.com/VundleVim/Vundle.vim.git" target="_blank" rel="noopener">https://github.com/VundleVim/Vundle.vim.git</a> ~/.vim/bundle/Vundle.vim //提示版本可能会更新， 请于github查看<br>vim ~/.vimrc  //没有就将下面粘贴进去， 如果有错误， 请到github获取官方配置</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> nocompatible              <span class="string">" be iMproved, required</span></span><br><span class="line"><span class="string">filetype off                  "</span> required=</span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> nocompatible              <span class="string">" be iMproved, required</span></span><br><span class="line"><span class="string">filetype off                  "</span> required</span><br><span class="line"><span class="string">" set the runtime path to include Vundle and initialize</span></span><br><span class="line"><span class="string">set rtp+=~/.vim/bundle/Vundle.vim</span></span><br><span class="line"><span class="string">call vundle#begin()</span></span><br><span class="line"><span class="string">"</span> alternatively, pass a path <span class="built_in">where</span> Vundle should install plugins</span><br><span class="line"><span class="string">"call vundle#begin('~/some/path/here')</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">"</span> <span class="built_in">let</span> Vundle manage Vundle, required</span><br><span class="line">Plugin <span class="string">'VundleVim/Vundle.vim'</span></span><br><span class="line"></span><br><span class="line"><span class="string">" The following are examples of different formats supported.</span></span><br><span class="line"><span class="string">"</span> Keep Plugin commands between vundle<span class="comment">#begin/end.</span></span><br><span class="line"><span class="string">" plugin on GitHub repo</span></span><br><span class="line"><span class="string">Plugin 'tpope/vim-fugitive'</span></span><br><span class="line"><span class="string">"</span> plugin from http://vim-scripts.org/vim/scripts.html</span><br><span class="line"><span class="string">" Plugin 'L9'</span></span><br><span class="line"><span class="string">"</span> Git plugin not hosted on GitHub</span><br><span class="line">Plugin <span class="string">'git://git.wincent.com/command-t.git'</span></span><br><span class="line"><span class="string">" git repos on your local machine (i.e. when working on your own plugin)</span></span><br><span class="line"><span class="string">"</span> Plugin <span class="string">'file:///home/gmarik/path/to/plugin'</span></span><br><span class="line"><span class="string">" The sparkup vim script is in a subdirectory of this repo called vim.</span></span><br><span class="line"><span class="string">"</span> Pass the path to <span class="built_in">set</span> the runtimepath properly.</span><br><span class="line">Plugin <span class="string">'rstacruz/sparkup'</span>, &#123;<span class="string">'rtp'</span>: <span class="string">'vim/'</span>&#125;</span><br><span class="line"><span class="string">" Install L9 and avoid a Naming conflict if you've already installed a</span></span><br><span class="line"><span class="string">"</span> different version somewhere <span class="keyword">else</span>.</span><br><span class="line"><span class="string">" Plugin 'ascenator/L9', &#123;'name': 'newL9'&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">"</span> All of your Plugins must be added before the following line</span><br><span class="line">call vundle<span class="comment">#end()            " required</span></span><br><span class="line">filetype plugin indent on    <span class="string">" required</span></span><br><span class="line"><span class="string">"</span> To ignore plugin indent changes, instead use:</span><br><span class="line"><span class="string">"filetype plugin on</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line"><span class="string">" Brief help</span></span><br><span class="line"><span class="string">"</span> :PluginList       - lists configured plugins</span><br><span class="line"><span class="string">" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate</span></span><br><span class="line"><span class="string">"</span> :PluginSearch foo - searches <span class="keyword">for</span> foo; append `!` to refresh <span class="built_in">local</span> cache</span><br><span class="line"><span class="string">" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line"><span class="string">" see :h vundle for more details or wiki for FAQ</span></span><br><span class="line"><span class="string">"</span> Put your non-Plugin stuff after this line</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>vim<br>:PluginInstall //安装插件</p>
+</blockquote>
+<h2 id="安装YouCompleteMe"><a href="#安装YouCompleteMe" class="headerlink" title="安装YouCompleteMe"></a>安装YouCompleteMe</h2><blockquote>
+<p>vim ~/.vimrc</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">all vundle<span class="comment">#begin()  </span></span><br><span class="line">. . .</span><br><span class="line">Plugin <span class="string">'Valloric/YouCompleteMe’ //加入 YouCompleteMe</span></span><br><span class="line"><span class="string">. . .  </span></span><br><span class="line"><span class="string">call vundle#end()</span></span><br></pre></td></tr></table></figure>
+
+<p>继续vim 然后:PluginInstall</p>
+<h2 id="升级Cmake"><a href="#升级Cmake" class="headerlink" title="升级Cmake"></a>升级Cmake</h2><blockquote>
+<p>wget <a href="https://cmake.org/files/v3.11/cmake-3.11.3.tar.gz" target="_blank" rel="noopener">https://cmake.org/files/v3.11/cmake-3.11.3.tar.gz</a><br>tar xvf cmake-3.11.3.tar.gz &amp;&amp; cd cmake-3.11.3/<br>./bootstrap<br>gmake<br>gmake install<br>//查看版本<br>/usr/local/bin/cmake –version<br>//移除自带的版本<br>yum remove cmake -y<br>//新建软连接<br>ln -s /usr/local/bin/cmake /usr/bin/</p>
+</blockquote>
+<p>到这里第一部分算是完成了， 千万不能立即编译YcmCompleteMe, 因为centos根本就不会自动下载clang所以这里我们需要自己安装， 过程非常漫长， 要等待很长时间， 所以务必耐心等待</p>
+<h2 id="下载文件"><a href="#下载文件" class="headerlink" title="下载文件"></a>下载文件</h2><p><a href="http://releases.llvm.org/download.html#6.0.0" target="_blank" rel="noopener" title="http://releases.llvm.org/download.html#6.0.0">http://releases.llvm.org/download.html#6.0.0</a>首先到这个页面Source下面除了<strong>LLVM Test Suite (.sig)</strong>以外的全部下载下来</p>
+<h2 id="准备-LLVM-源码"><a href="#准备-LLVM-源码" class="headerlink" title="准备 LLVM 源码"></a>准备 LLVM 源码</h2><p>LLVM 的各个子组件必须放在 LLVM 源码的固定位置，使用固定名称。<br>首先解压 llvm-6.0.0.src.tar.xz，生成目录 llvm-6.0.0.src<br>解压 tar.xz 文件使用 tar Jxvf filename.tar.xz -C 指定路径<br>解压文件到指定文件夹tar Jxvf filename.tar.xz -C 指定路径<br><strong>mv 源文件 新文件名</strong>来修改文件名</p>
+<p><strong>放在 llvm-6.0.0.src/tools 目录下的组件：</strong></p>
+<blockquote>
+<p>解压 cfe-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/tools/clang<br>解压 lld-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/tools/lld<br>解压 polly-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/tools/polly<br>解压 lldb-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/tools/lldb</p>
+</blockquote>
+<p><strong>放在 llvm-6.0.0.src/projects 目录下的组件：</strong></p>
+<blockquote>
+<p>解压 openmp-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/projects/openmp<br>解压 libcxx-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/projects/libcxx<br>解压 libcxxabi-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/projects/libcxxabi<br>解压 libunwind-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/projects/libunwind<br>解压 compiler-rt-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/projects/compiler-rt</p>
+</blockquote>
+<p><strong>clang 的子组件：</strong></p>
+<blockquote>
+<p>解压 clang-tools-extra-6.0.0.src.tar.xz，重命名为 llvm-6.0.0.src/tools/clang/tools/extra</p>
+</blockquote>
+<h2 id="使用-CMake-生成-Makefile"><a href="#使用-CMake-生成-Makefile" class="headerlink" title="使用 CMake 生成 Makefile"></a>使用 CMake 生成 Makefile</h2><blockquote>
+<ol>
+<li>cd llvm-6.0.0.src //首先进入解压的目录</li>
+<li>mkdir build &amp;&amp; cd build</li>
+<li>cmake .. -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_INCLUDE_DOCS=OFF -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_EH=ON -DLLVM_INSTALL_UTILS=ON -DWITH_POLLY=ON -DLINK_POLLY_INTO_TOOLS=ON -DLLVM_TARGETS_TO_BUILD=X86 -DLIBOMP_ARCH=x86_64 -DBUILD_SHARED_LIBS=ON -DLIBOMP_ENABLE_SHARED=ON -DLLVM_ENABLE_LIBCXX=ON -DLLDB_RELOCATABLE_PYTHON=ON -DLLVM_ENABLE_FFI=ON -DCMAKE_BUILD_TYPE=Release -DCLANG_DEFAULT_CXX_STDLIB=libc++ -DCLANG_DEFAULT_RTLIB=compiler-rt -DCLANG_INCLUDE_TESTS=OFF -DENABLE_LINKER_BUILD_ID=ON -DENABLE_X86_RELAX_RELOCATIONS=ON -DLIBCXXABI_INCLUDE_TESTS=OFF -DLIBCXX_INCLUDE_BENCHMARKS=OFF -DLIBCXX_INCLUDE_TESTS=OFF -DLIBOMP_TSAN_SUPPORT=ON -DLLDB_BUILD_INTEL_PT=OFF -DLLDB_INCLUDE_TESTS=OFF -DLLVM_ENABLE_OCAMLDOC=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_GO_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INSTALL_BINUTILS_SYMLINKS=ON -DLLVM_TOOL_LLGO_BUILD=ON -DLLVM_TOOL_PARALLEL_LIBS_BUILD=ON -DLLVM_ENABLE_PIC=ON -DLIBUNWIND_ENABLE_SHARED=OFF -DLIBCXX_ENABLE_PEDANTIC=ON -DLIBCXXABI_LIBDIR_SUFFIX=64 -DLIBCXX_LIBDIR_SUFFIX=64 -DLIBUNWIND_LIBDIR_SUFFIX=64 -DLLVM_LIBDIR_SUFFIX=64</li>
+</ol>
+</blockquote>
+<h2 id="编译-时间较长，-注意等待"><a href="#编译-时间较长，-注意等待" class="headerlink" title="编译(时间较长， 注意等待)"></a>编译(时间较长， 注意等待)</h2><p>make -j4 // -j4 表示并发执行 4 个任务，这个数字指定 CPU 核心数为佳<br>make install</p>
+<h2 id="在编译阶段遇到的问题"><a href="#在编译阶段遇到的问题" class="headerlink" title="在编译阶段遇到的问题"></a>在编译阶段遇到的问题</h2><p>这里的问题是以我本身环境所决定， 具体的如果你遇到请自行搜索查阅</p>
+<h2 id="内存不足"><a href="#内存不足" class="headerlink" title="内存不足"></a>内存不足</h2><p>这里如果你的机器内存太小， 比如我的内存只有1G， 所以需要借助swap<br>dd if=/dev/zero of=/swapfile bs=64M count=16 //bs代表块大小， count需要多少块<br>mkswap /swapfile<br>swapon /swapfile<br>// 编译结束以后一定要删除<br>swapoff /swapfile<br>rm /swapfile</p>
+<h2 id="遇到未找到的问题"><a href="#遇到未找到的问题" class="headerlink" title="遇到未找到的问题"></a>遇到未找到的问题</h2><p><strong>/usr/bin/ld: cannot find -lgtest</strong><br>如果是遇到这个问题， 是越少googletest框架, 参考<a href="https://stackoverflow.com/questions/13513905/how-to-setup-googletest-as-a-shared-library-on-linux" target="_blank" rel="noopener" title="https://stackoverflow.com/questions/13513905/how-to-setup-googletest-as-a-shared-library-on-linux">https://stackoverflow.com/questions/13513905/how-to-setup-googletest-as-a-shared-library-on-linux</a></p>
+<blockquote>
+<p>git clone <a href="https://github.com/google/googletest.git" target="_blank" rel="noopener">https://github.com/google/googletest.git</a><br>cd googletest<br>cmake -DBUILD_SHARED_LIBS=ON .<br>make<br>cp -a googletest/include/gtest /usr/include<br>cp -a googlemock/gtest/libgtest_main.so googlemock/gtest/libgtest.so /usr/lib/</p>
+</blockquote>
+<h2 id="遇到Can’t-locate-Data-Dumper-pm-in-INC…问题"><a href="#遇到Can’t-locate-Data-Dumper-pm-in-INC…问题" class="headerlink" title="遇到Can’t locate Data/Dumper.pm in @INC…问题"></a>遇到Can’t locate Data/Dumper.pm in @INC…问题</h2><blockquote>
+<p>wget <a href="http://www.cpan.org/modules/by-module/Data/Data-Dumper-2.154.tar.gz" target="_blank" rel="noopener">http://www.cpan.org/modules/by-module/Data/Data-Dumper-2.154.tar.gz</a><br>tar xvzf Data-Dumper-2.154.tar.gz<br>cd Data-Dumper-2.121<br>perl Makefile.PL<br>make<br>make install<br> //如果遇到Can’t locate ExtUtils/MakeMaker.pm…该错误<br> yum install perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker cpan</p>
+</blockquote>
+<h2 id="下面就是编译YcmCompleteMe"><a href="#下面就是编译YcmCompleteMe" class="headerlink" title="下面就是编译YcmCompleteMe"></a>下面就是编译YcmCompleteMe</h2><p>由于你不是直接编译， 而是通过另外编译Clang, 所以不能使用install.sh脚本。</p>
+<blockquote>
+<p>mkdir ~/ycm_build<br>cd ~/ycm_build<br>cmake -G “Unix Makefiles” -DEXTERNAL_LIBCLANG_PATH=/usr/local/lib64/libclang.so . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp<br>// 这里需要你自己查找机器libclang的地方， find / -name “libclang”</p>
+</blockquote>
+<h2 id="生成ycm-core"><a href="#生成ycm-core" class="headerlink" title="生成ycm_core"></a>生成ycm_core</h2><blockquote>
+<p>cmake –build . –target ycm_core –config Release</p>
+</blockquote>
+<p>至此，YouCompleteMe已经算是安装成功！<br>注意：这时候，ycm_build目录可以删除啦！</p>
+<blockquote>
+<p>安装成功后，ycm_build以及ycm_temp目录都可以删除，不影响YouCompleteMe插件的使用。</p>
+</blockquote>
+<p>如果vim 出现<br><strong>NoExtraConfDetected: No .ycm_extra_conf.py file detected, so no compile flags are available. Thus no semantic support for C/C++/ObjC/ObjC++. Go READ THE DOCS <em>NOW</em>, DON’T file a bug r…</strong><br>到<a href="https://github.com/Valloric/ycmd/blob/master/cpp/ycm/.ycm_extra_conf.py" target="_blank" rel="noopener" title="https://github.com/Valloric/ycmd/blob/master/cpp/ycm/.ycm_extra_conf.py">https://github.com/Valloric/ycmd/blob/master/cpp/ycm/.ycm_extra_conf.py</a>该页面下载， 然后修改进行修改<br>cd  ~/.vim/bundle/YouCompleteMe<br>查看有没有cpp文件夹， 没有就创建mkdir cpp/ycm, 然后将下载.ycm_extra_conf.py放进该文件夹下, 然后编辑</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'-isystem'</span>,</span><br><span class="line"><span class="string">'/usr/include'</span>,</span><br><span class="line"><span class="string">'-isystem'</span>,</span><br><span class="line"><span class="string">'/usr/include/c++/4.8.5'</span>,//注意这是你自己版本</span><br><span class="line"><span class="string">'-isystem'</span>,</span><br><span class="line"><span class="string">'/usr/include'</span>,</span><br><span class="line"><span class="string">'/usr/include/x86_64-linux-gnu/c++'</span>, //这个也是你机器实际的位置</span><br></pre></td></tr></table></figure>
+
+<p>再次打开 .vimrc 配置YCM，如下：</p>
+<blockquote>
+<p>“YouCompleteMe<br>let g:ycm_global_ycm_extra_conf=’~/.vim/bundle/YouCompleteMe/cpp/ycm/.ycm_extra_conf.py’</p>
+</blockquote>
+<p>这样就算完成了， 可以自动补全了， 安装这个真的太费劲了， 简直不能忍受啊。 真的太繁琐了。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果文章对你有所帮助，不妨请作者喝杯咖啡</div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>JaguarJack
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://njphper.com/2018/04/17/vim-autocomplent/" title="Vim 自动补全集成方案">https://njphper.com/2018/04/17/vim-autocomplent/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/vim/" rel="tag"># vim</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/06/16/docker-swapon/" rel="prev" title="docker 遇到swapon failed Operation not permitted">
+      <i class="fa fa-chevron-left"></i> docker 遇到swapon failed Operation not permitted
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/05/08/go-byte-rune/" rel="next" title="go 的 []rune 和 []byte 区别">
+      go 的 []rune 和 []byte 区别 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VIM"><span class="nav-number">1.</span> <span class="nav-text">VIM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装一些基础的依赖"><span class="nav-number">1.1.</span> <span class="nav-text">安装一些基础的依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#升级gcc-amp-vim"><span class="nav-number">1.2.</span> <span class="nav-text">升级gcc &amp; vim</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Vundle-插件管理"><span class="nav-number">1.3.</span> <span class="nav-text">安装Vundle 插件管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装YouCompleteMe"><span class="nav-number">1.4.</span> <span class="nav-text">安装YouCompleteMe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#升级Cmake"><span class="nav-number">1.5.</span> <span class="nav-text">升级Cmake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载文件"><span class="nav-number">1.6.</span> <span class="nav-text">下载文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备-LLVM-源码"><span class="nav-number">1.7.</span> <span class="nav-text">准备 LLVM 源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-CMake-生成-Makefile"><span class="nav-number">1.8.</span> <span class="nav-text">使用 CMake 生成 Makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译-时间较长，-注意等待"><span class="nav-number">1.9.</span> <span class="nav-text">编译(时间较长， 注意等待)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在编译阶段遇到的问题"><span class="nav-number">1.10.</span> <span class="nav-text">在编译阶段遇到的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存不足"><span class="nav-number">1.11.</span> <span class="nav-text">内存不足</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到未找到的问题"><span class="nav-number">1.12.</span> <span class="nav-text">遇到未找到的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到Can’t-locate-Data-Dumper-pm-in-INC…问题"><span class="nav-number">1.13.</span> <span class="nav-text">遇到Can’t locate Data&#x2F;Dumper.pm in @INC…问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下面就是编译YcmCompleteMe"><span class="nav-number">1.14.</span> <span class="nav-text">下面就是编译YcmCompleteMe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成ycm-core"><span class="nav-number">1.15.</span> <span class="nav-text">生成ycm_core</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JaguarJack</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanwenwu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanwenwu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:njphper@gmail.com" title="E-Mail → mailto:njphper@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友情连接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.baiyf.com/" title="http:&#x2F;&#x2F;www.baiyf.com&#x2F;" rel="noopener" target="_blank">白云飞博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.pig87.com/" title="http:&#x2F;&#x2F;blog.pig87.com&#x2F;" rel="noopener" target="_blank">学习博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">苏ICP备14056477号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JaguarJack</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: true,
+      notify: true,
+      appId: 'VcMKWacK2z1EvBmxCT8USAd9-gzGzoHsz',
+      appKey: 'VHhJKU7Qfzeae6lpafaY5UAB',
+      placeholder: "留下评论再走~",
+      avatar: 'retro',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: false,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
